@@ -1,0 +1,7 @@
+@for (blog of blogs; track $index) {
+    <div class="container border border-primary custom-background mt-1 text-center" (click)="goToBlog(blog.id)">
+        <h2>{{ blog.title }}</h2>
+        <p>{{ blog.blog_text }}</p>
+        <p >Date added: <span class="text-secondary">{{ blog.date_created| datePipe }}</span></p>    
+     </div>
+}

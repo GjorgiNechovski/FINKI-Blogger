@@ -1,0 +1,23 @@
+.custom-background{
+    width: 50%;
+    height: 50%;
+    background-color: hwb(44 73% 5%);
+    box-shadow: 0px 7px 16px 0px rgba(41,53,108,0.25);
+    padding: 2em;
+    display: block;
+    border-radius: 8px;
+    font-size: 30px;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.center-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 140vh;
+    margin-top: -200px;
+}
