@@ -6,11 +6,11 @@ services:
     networks:
       - backend
     environment:
-      - DATABASE_HOST=blogging-db
-      - DATABASE_PORT=5432
-      - DATABASE_USER=user
-      - DATABASE_PASSWORD=password
-      - DATABASE_NAME=blogging
+      - DB_HOST=blogging-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=root123
+      - DB_NAME=finki-blogger-blogs
     ports:
       - "8081:8000"
 
@@ -19,11 +19,11 @@ services:
     networks:
       - backend
     environment:
-      - DATABASE_HOST=blogging-db
-      - DATABASE_PORT=5432
-      - DATABASE_USER=user
-      - DATABASE_PASSWORD=password
-      - DATABASE_NAME=blogging
+      - DB_HOST=blogging-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=root123
+      - DB_NAME=finki-blogger-blogs
     ports:
       - "8082:8000"
 
@@ -32,11 +32,11 @@ services:
     networks:
       - backend
     environment:
-      - DATABASE_HOST=blogging-db
-      - DATABASE_PORT=5432
-      - DATABASE_USER=user
-      - DATABASE_PASSWORD=password
-      - DATABASE_NAME=blogging
+      - DB_HOST=blogging-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=root123
+      - DB_NAME=finki-blogger-blogs
     ports:
       - "8083:8000"
 
@@ -52,11 +52,9 @@ services:
     networks:
       - backend
     environment:
-      - DATABASE_HOST=jwt-db
-      - DATABASE_PORT=5432
-      - DATABASE_USER=user
-      - DATABASE_PASSWORD=password
-      - DATABASE_NAME=jwt
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://jwt-db:5432/finki-blogger-jwt
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root123
     ports:
       - "8080:8080"
 
