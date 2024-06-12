@@ -1,0 +1,168 @@
+version: "3.8"
+
+services:
+  blogging-service:
+    build: ./blogging-service
+    networks:
+      - backend
+    environment:
+      - DATABASE_HOST=blogging-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=blogging
+    ports:
+      - "8081:8000"
+
+  comment-service:
+    build: ./CommentService
+    networks:
+      - backend
+    environment:
+      - DATABASE_HOST=blogging-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=blogging
+    ports:
+      - "8082:8000"
+
+  like-service:
+    build: ./likeService
+    networks:
+      - backend
+    environment:
+      - DATABASE_HOST=blogging-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=blogging
+    ports:
+      - "8083:8000"
+
+  email-service:
+    build: ./emailService
+    networks:
+      - backend
+    ports:
+      - "8084:8080"
+
+  jwt-service:
+    build: ./JWT-service
+    networks:
+      - backend
+    environment:
+      - DATABASE_HOST=jwt-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=jwt
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4200:4200"
+    networks:
+      - frontend
+    depends_on:
+      - api-gateway
+
+  api-gateway:
+    image: kong:latest
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /app/kong.yml
+    volumes:
+      - ./kong.yml:/app/kong.yml
+    ports:
+      - "8000:8000"
+    networks:
+      - frontend
+      - backend
+
+  blogging-service-lb:
+    image: nginx:latest
+    volumes:
+      - ./nginx/blogging-service.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8086:80"
+    networks:
+      - backend
+    depends_on:
+      - blogging-service
+
+  comment-service-lb:
+    image: nginx:latest
+    volumes:
+      - ./nginx/comment-service.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8087:80"
+    networks:
+      - backend
+    depends_on:
+      - comment-service
+
+  like-service-lb:
+    image: nginx:latest
+    volumes:
+      - ./nginx/like-service.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8088:80"
+    networks:
+      - backend
+    depends_on:
+      - like-service
+
+  email-service-lb:
+    image: nginx:latest
+    volumes:
+      - ./nginx/email-service.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8089:80"
+    networks:
+      - backend
+    depends_on:
+      - email-service
+
+  jwt-service-lb:
+    image: nginx:latest
+    volumes:
+      - ./nginx/jwt-service.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8090:80"
+    networks:
+      - backend
+    depends_on:
+      - jwt-service
+
+  blogging-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+      POSTGRES_DB: finki-blogger-blogs
+    volumes:
+      - blogging-db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  jwt-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+      POSTGRES_DB: finki-blogger-jwt
+    volumes:
+      - jwt-db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  blogging-db-data:
+  jwt-db-data:

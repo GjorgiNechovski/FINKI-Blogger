@@ -7,7 +7,6 @@ import requests
 
 
 import models
-from config import GET_USER_URL, EMAIL_URL
 from database import engine, SessionLocal
 from pydanticModels import User
 from utils import get_token_authorization
@@ -35,8 +34,8 @@ def get_db():
 
 @app.post("/like")
 def like_post(blog_id: int, token: str = Depends(get_token_authorization), db: Session = Depends(get_db)):
-    user_url = GET_USER_URL
-    email_url = EMAIL_URL
+    user_url = "http://host.docker.internal:8080/api/getUser"
+    email_url = "http://host.docker.internal:8084"
 
     response = requests.get(user_url, headers={"Authorization": token})
 

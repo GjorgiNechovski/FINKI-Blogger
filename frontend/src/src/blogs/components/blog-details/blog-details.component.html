@@ -3,7 +3,7 @@
         @if (blog && loading) {
             <h1>{{blog.title}}</h1>
             <p>{{blog.blog_text}}</p>
-            <p>Number of likes: {{blog.number_of_likes ?? 0}}</p>
+            <p>Number of likes: {{blog.number_of_likes}}</p>
 
             @for (comment of blog.comments; track $index) {
                 <div class="row m-2 p-2 border border-dark">

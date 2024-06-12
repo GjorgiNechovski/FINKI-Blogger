@@ -36,7 +36,7 @@ def get_db():
 
 @app.post("/create-comment")
 async def create_comment(comment: CommentPydantic, token: str = Depends(get_token_authorization), db: Session = Depends(get_db)):
-    user_url = "http://localhost:8080/api/getUser"
+    user_url = "http://host.docker.internal:8080/api/getUser"
 
     response = requests.get(user_url, headers={"Authorization": token})
 

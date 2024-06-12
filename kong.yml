@@ -1,0 +1,36 @@
+_format_version: "2.1"
+services:
+  - name: blogging-service
+    url: http://blogging-service-lb:80
+    routes:
+      - name: blogging-service
+        paths:
+          - /blogging
+
+  - name: comment-service
+    url: http://comment-service-lb:80
+    routes:
+      - name: comment-service
+        paths:
+          - /comments
+
+  - name: like-service
+    url: http://like-service-lb:80
+    routes:
+      - name: like-service
+        paths:
+          - /likes
+
+  - name: email-service
+    url: http://email-service-lb:80
+    routes:
+      - name: email-service
+        paths:
+          - /emails
+
+  - name: jwt-service
+    url: http://jwt-service-lb:80
+    routes:
+      - name: jwt-service
+        paths:
+          - /jwt
