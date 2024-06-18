@@ -34,8 +34,8 @@ def get_db():
 
 @app.post("/like")
 def like_post(blog_id: int, token: str = Depends(get_token_authorization), db: Session = Depends(get_db)):
-    user_url = "http://host.docker.internal:8080/api/getUser"
-    email_url = "http://host.docker.internal:8084"
+    user_url = "http://host.docker.internal:8090/api/getUser"
+    email_url = "http://host.docker.internal:8089"
 
     response = requests.get(user_url, headers={"Authorization": token})
 

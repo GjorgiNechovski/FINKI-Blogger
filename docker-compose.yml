@@ -11,8 +11,10 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=root123
       - DB_NAME=finki-blogger-blogs
-    ports:
-      - "8081:8000"
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: vip
 
   comment-service:
     build: ./CommentService
@@ -24,8 +26,10 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=root123
       - DB_NAME=finki-blogger-blogs
-    ports:
-      - "8082:8000"
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: vip
 
   like-service:
     build: ./likeService
@@ -37,15 +41,19 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=root123
       - DB_NAME=finki-blogger-blogs
-    ports:
-      - "8083:8000"
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: vip
 
   email-service:
     build: ./emailService
     networks:
       - backend
-    ports:
-      - "8084:8080"
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: vip
 
   jwt-service:
     build: ./JWT-service
@@ -55,8 +63,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://jwt-db:5432/finki-blogger-jwt
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=root123
-    ports:
-      - "8080:8080"
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: vip
 
   frontend:
     build: ./frontend

@@ -43,7 +43,7 @@ async def get_blogs(db: Session = Depends(get_db)):
 
 @app.post("/createBlog")
 async def create_blog(blog: BlogPydantic, token: str = Depends(get_token_authorization), db: Session = Depends(get_db)):
-    user_url = "http://host.docker.internal:8080/api/getUser"
+    user_url = "http://host.docker.internal:8090/api/getUser"
 
     response = requests.get(user_url, headers={"Authorization": token})
 
