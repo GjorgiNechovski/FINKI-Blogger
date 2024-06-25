@@ -11,10 +11,14 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=root123
       - DB_NAME=finki-blogger-blogs
+      - ZOOKEEPER_HOST=zookeeper
+      - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       endpoint_mode: vip
+    depends_on:
+      - zookeeper
 
   comment-service:
     build: ./CommentService
@@ -26,10 +30,14 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=root123
       - DB_NAME=finki-blogger-blogs
+      - ZOOKEEPER_HOST=zookeeper
+      - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       endpoint_mode: vip
+    depends_on:
+      - zookeeper
 
   like-service:
     build: ./likeService
@@ -43,12 +51,15 @@ services:
       - DB_NAME=finki-blogger-blogs
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
+      - ZOOKEEPER_HOST=zookeeper
+      - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       endpoint_mode: vip
     depends_on:
-    - rabbitmq
+      - rabbitmq
+      - zookeeper
 
   email-service:
     build: ./emailService
@@ -57,12 +68,15 @@ services:
     environment:
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
+      - ZOOKEEPER_HOST=zookeeper
+      - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       endpoint_mode: vip
     depends_on:
-     - rabbitmq
+      - rabbitmq
+      - zookeeper
 
   jwt-service:
     build: ./JWT-service
@@ -72,10 +86,14 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://jwt-db:5432/finki-blogger-jwt
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=root123
+      - ZOOKEEPER_HOST=zookeeper
+      - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       endpoint_mode: vip
+    depends_on:
+      - zookeeper
 
   frontend:
     build: ./frontend
@@ -91,6 +109,8 @@ services:
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /app/kong.yml
+      KONG_ZOOKEEPER_HOST: zookeeper
+      KONG_ZOOKEEPER_PORT: 2181
     volumes:
       - ./kong.yml:/app/kong.yml
     ports:
@@ -98,6 +118,8 @@ services:
     networks:
       - frontend
       - backend
+    depends_on:
+      - zookeeper
 
   blogging-service-lb:
     image: nginx:latest
@@ -183,6 +205,16 @@ services:
       - "15672:15672"
     networks:
       - backend
+
+  zookeeper:
+    image: zookeeper:3.7.0
+    ports:
+      - "2181:2181"
+    networks:
+      - backend
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zookeeper:2888:3888;2181
 
 networks:
   frontend:
