@@ -1,10 +1,12 @@
+import os
+
+import pika
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 import requests
-
 
 import models
 from database import engine, SessionLocal
@@ -23,6 +25,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
+rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
+
 
 def get_db():
     db = SessionLocal()
@@ -32,10 +37,29 @@ def get_db():
         db.close()
 
 
+def send_email_message(email, header, message):
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host=rabbitmq_host, port=rabbitmq_port)
+    )
+    channel = connection.channel()
+
+    channel.queue_declare(queue='like_events', durable=True)
+
+    email_string = f"{email}|{header}|{message}"
+
+    channel.basic_publish(exchange='',
+                          routing_key='like_events',
+                          body=email_string,
+                          properties=pika.BasicProperties(
+                              delivery_mode=2,
+                          ))
+
+    connection.close()
+
+
 @app.post("/like")
 def like_post(blog_id: int, token: str = Depends(get_token_authorization), db: Session = Depends(get_db)):
     user_url = "http://host.docker.internal:8090/api/getUser"
-    email_url = "http://host.docker.internal:8089"
 
     response = requests.get(user_url, headers={"Authorization": token})
 
@@ -47,7 +71,8 @@ def like_post(blog_id: int, token: str = Depends(get_token_authorization), db: S
         if not blog:
             raise HTTPException(status_code=404, detail="Blog not found")
 
-        existing_like = db.query(models.Like).filter(models.Like.blog_id == blog_id, models.Like.user_id == user.id).first()
+        existing_like = db.query(models.Like).filter(models.Like.blog_id == blog_id,
+                                                     models.Like.user_id == user.id).first()
         if existing_like:
             db.delete(existing_like)
             blog.number_of_likes = blog.number_of_likes - 1 if blog.number_of_likes > 0 else 0
@@ -67,17 +92,9 @@ def like_post(blog_id: int, token: str = Depends(get_token_authorization), db: S
 
             print(recipient_email)
 
-            requests.post(
-                email_url + "/email",
-                json={
-                    "email": recipient_email,
-                    "header": email_header,
-                    "message": email_message
-                }
-            )
+            send_email_message(recipient_email, email_header, email_message)
 
         return JSONResponse(status_code=200, content={"message": "Blog liked successfully"})
 
     else:
         raise HTTPException(status_code=response.status_code, detail="Failed to fetch user information")
-

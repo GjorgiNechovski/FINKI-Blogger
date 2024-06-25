@@ -1,13 +1,9 @@
 package mk.ukim.finki.soa.emailservice.controllers;
 
-import mk.ukim.finki.soa.emailservice.models.EmailDto;
 import mk.ukim.finki.soa.emailservice.services.EmailService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
+@Component
 public class EmailController {
     private final EmailService emailService;
 
@@ -15,10 +11,17 @@ public class EmailController {
         this.emailService = emailService;
     }
 
-    @PostMapping("/email")
-    public ResponseEntity<Void> sendEmail(@RequestBody EmailDto email){
-        this.emailService.sendEmail(email.getEmail(), email.getHeader(), email.getMessage());
+    @RabbitListener(queues = "like_events")
+    public void handleLikeEvent(String message) {
+        String[] parts = message.split("\\|");
+        if (parts.length == 3) {
+            String email = parts[0];
+            String header = parts[1];
+            String messageContent = parts[2];
 
-        return ResponseEntity.ok().build();
+            this.emailService.sendEmail(email, header, messageContent);
+        } else {
+            System.err.println("Received malformed message: " + message);
+        }
     }
 }
