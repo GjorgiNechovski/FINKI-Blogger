@@ -15,7 +15,7 @@ services:
       - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       endpoint_mode: vip
     depends_on:
       - zookeeper
@@ -34,7 +34,7 @@ services:
       - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       endpoint_mode: vip
     depends_on:
       - zookeeper
@@ -55,7 +55,7 @@ services:
       - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       endpoint_mode: vip
     depends_on:
       - rabbitmq
@@ -72,7 +72,7 @@ services:
       - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       endpoint_mode: vip
     depends_on:
       - rabbitmq
@@ -90,7 +90,7 @@ services:
       - ZOOKEEPER_PORT=2181
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       endpoint_mode: vip
     depends_on:
       - zookeeper

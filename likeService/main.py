@@ -9,6 +9,7 @@ from starlette.responses import JSONResponse
 import requests
 
 import models
+import zookeeper
 from database import engine, SessionLocal
 from pydanticModels import User
 from utils import get_token_authorization
@@ -35,6 +36,31 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+zk_client = None
+service_port = None
+
+
+@app.on_event("startup")
+async def startup_event():
+    global zk_client, service_port
+    zk_client = zookeeper.connect_to_zookeeper()
+    service_port = zookeeper.register_service(zk_client)
+    app.port = service_port
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if zk_client:
+        zk_client.stop()
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=service_port)
+
 
 
 def send_email_message(email, header, message):
